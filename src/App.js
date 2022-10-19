@@ -1,18 +1,22 @@
-import React from 'react'
+import React, { useState } from 'react'
 import 'bootstrap/dist/css/bootstrap.css'
 
+// Import components
+import Header from './components/header/Header'
+import FormAddTodo from './components/todo/FormAddTodo'
+
 function App() {
+  const [todos, setTodos] = useState([])
+
+  let addTodo = (text) => {
+    setTodos((prevState) => {
+      return [...prevState, { key: Date.now(), done: false, text }]
+    })
+  }
+
   return (
     <div className='App'>
-      <header>
-        <div className='navbar navbar-dark bg-dark shadow-sm'>
-          <div className='container d-flex justify-content-between'>
-            <a href='/#' className='navbar-brand d-flex align-items-center'>
-              <strong>Todo App</strong>
-            </a>
-          </div>
-        </div>
-      </header>
+      <Header />
       <main>
         <section className='jumbotron'>
           <div className='container d-flex flex-column align-items-center'>
@@ -20,16 +24,7 @@ function App() {
             <p className='lead text-muted'>
               To get started, add some items to your list:
             </p>
-            <div className='form-inline'>
-              <div className='form-group'>
-                <input
-                  type='text'
-                  className='form-control mx-sm-3'
-                  placeholder='i want to do ...'
-                />
-                <button className='btn btn-primary'>add</button>
-              </div>
-            </div>
+            <FormAddTodo add={addTodo} />
           </div>
         </section>
         <div className='todosList'>
