@@ -4,15 +4,19 @@ import 'bootstrap/dist/css/bootstrap.css'
 // Import components
 import Header from './components/header/Header'
 import FormAddTodo from './components/todo/FormAddTodo'
+import Todo from './components/todo/Todo'
 
 function App() {
   const [todos, setTodos] = useState([])
+  const [statusDone, setStatusDone] = useState(false)
 
   let addTodo = (text) => {
     setTodos((prevState) => {
       return [...prevState, { key: Date.now(), done: false, text }]
     })
   }
+
+  let filterTodos = todos.filter((item) => item.done === statusDone)
 
   return (
     <div className='App'>
@@ -36,66 +40,33 @@ function App() {
                     href='/#'
                     className='nav-item nav-link active font-weight-bold'
                     id='nav-home-tab'
+                    onClick={() => setStatusDone(false)}
                   >
-                    undone <span className='badge badge-secondary'>9</span>
+                    undone{' '}
+                    <span className='badge badge-secondary'>
+                      {todos.filter((item) => item.done === false).length}
+                    </span>
                   </a>
                   <a
                     href='/#'
                     className='nav-item nav-link font-weight-bold'
                     id='nav-profile-tab'
+                    onClick={() => setStatusDone(true)}
                   >
-                    done <span className='badge badge-success'>9</span>
+                    done{' '}
+                    <span className='badge badge-success'>
+                      {todos.filter((item) => item.done === true).length}
+                    </span>
                   </a>
                 </div>
               </nav>
-              <div className='col-6 mb-2'>
-                <div className='d-flex justify-content-between align-items-center border rounded p-3'>
-                  <div>hello roocket</div>
-                  <div>
-                    <button type='button' className='btn btn-info btn-sm'>
-                      edit
-                    </button>
-                    <button
-                      type='button'
-                      className='btn btn-danger btn-sm ml-1'
-                    >
-                      delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className='col-6 mb-2'>
-                <div className='d-flex justify-content-between align-items-center border rounded p-3'>
-                  <div>hello roocket</div>
-                  <div>
-                    <button type='button' className='btn btn-info btn-sm'>
-                      edit
-                    </button>
-                    <button
-                      type='button'
-                      className='btn btn-danger btn-sm ml-1'
-                    >
-                      delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className='col-6 mb-2'>
-                <div className='d-flex justify-content-between align-items-center border rounded p-3'>
-                  <div>hello roocket</div>
-                  <div>
-                    <button type='button' className='btn btn-info btn-sm'>
-                      edit
-                    </button>
-                    <button
-                      type='button'
-                      className='btn btn-danger btn-sm ml-1'
-                    >
-                      delete
-                    </button>
-                  </div>
-                </div>
-              </div>
+              {filterTodos.length === 0 ? (
+                <p>this isnt any todos</p>
+              ) : (
+                filterTodos.map((item) => (
+                  <Todo key={item.key} text={item.text} />
+                ))
+              )}
             </div>
           </div>
         </div>
