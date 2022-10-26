@@ -1,77 +1,88 @@
-import React, { useState } from 'react'
+import React, { useState, useReducer, useEffect, lazy, Suspense } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.css'
 
 // Import components
 import Header from './components/header/Header'
-import FormAddTodo from './components/todo/FormAddTodo'
-import Todo from './components/todo/Todo'
+
+// Import context
+import TodosContext from './context/todos'
+import AuthContext from './context/auth'
+
+// Import Reducers
+import AppReducer from './Reducers/appReducer'
+
+// Import Router
+import Home from './Router/Home'
+
+const About = lazy(() => import('./Router/About'))
+const ContactUs = lazy(() => import('./Router/ContactUs'))
+const Single = lazy(() => import('./Router/todo/Single'))
+const NotFound = lazy(() => import('./Router/NotFound'))
 
 function App() {
-  const [todos, setTodos] = useState([])
-  const [statusDone, setStatusDone] = useState(false)
-
-  let addTodo = (text) => {
-    setTodos((prevState) => {
-      return [...prevState, { key: Date.now(), done: false, text }]
-    })
-  }
-
-  let filterTodos = todos.filter((item) => item.done === statusDone)
+  const [state, dispatch] = useReducer(AppReducer, {
+    todos: [],
+    authenticated: false
+  })
 
   return (
-    <div className='App'>
-      <Header />
-      <main>
-        <section className='jumbotron'>
-          <div className='container d-flex flex-column align-items-center'>
-            <h1 className='jumbotron-heading'>Welcome!</h1>
-            <p className='lead text-muted'>
-              To get started, add some items to your list:
-            </p>
-            <FormAddTodo add={addTodo} />
-          </div>
-        </section>
-        <div className='todosList'>
-          <div className='container'>
-            <div className='d-flex flex-column align-items-center '>
-              <nav className='col-6 mb-3'>
-                <div className='nav nav-tabs' id='nav-tab' role='tablist'>
-                  <a
-                    href='/#'
-                    className='nav-item nav-link active font-weight-bold'
-                    id='nav-home-tab'
-                    onClick={() => setStatusDone(false)}
-                  >
-                    undone{' '}
-                    <span className='badge badge-secondary'>
-                      {todos.filter((item) => item.done === false).length}
-                    </span>
-                  </a>
-                  <a
-                    href='/#'
-                    className='nav-item nav-link font-weight-bold'
-                    id='nav-profile-tab'
-                    onClick={() => setStatusDone(true)}
-                  >
-                    done{' '}
-                    <span className='badge badge-success'>
-                      {todos.filter((item) => item.done === true).length}
-                    </span>
-                  </a>
-                </div>
-              </nav>
-              {filterTodos.length === 0 ? (
-                <p>this isnt any todos</p>
-              ) : (
-                filterTodos.map((item) => (
-                  <Todo key={item.key} text={item.text} />
-                ))
-              )}
-            </div>
-          </div>
+    <AuthContext.Provider
+      value={{
+        authenticated: state.authenticated,
+        dispatch
+      }}
+    >
+      <TodosContext.Provider
+        value={{
+          todos: state.todos,
+          dispatch
+        }}
+      >
+        <div className='App'>
+          <Header />
         </div>
-      </main>
-    </div>
+
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route
+            path='/about'
+            element={
+              <Suspense fallback={<h2>Loading</h2>}>
+                <About />
+              </Suspense>
+            }
+          />
+          <Route
+            path='/contact-us'
+            element={
+              <Suspense fallback={<h2>Loading</h2>}>
+                <ContactUs />
+              </Suspense>
+            }
+          >
+            <Route path='form' element={<h2>Contact Us Form</h2>} />
+            <Route path='address' element={<h2>Contact Us Address</h2>} />
+          </Route>
+          <Route
+            path='/todos/:id'
+            element={
+              <Suspense fallback={<h2>Loading</h2>}>
+                <Single />
+              </Suspense>
+            }
+          />
+          <Route
+            path='*'
+            element={
+              <Suspense fallback={<h2>Loading</h2>}>
+                <NotFound />
+              </Suspense>
+            }
+          />
+        </Routes>
+      </TodosContext.Provider>
+    </AuthContext.Provider>
   )
 }
 

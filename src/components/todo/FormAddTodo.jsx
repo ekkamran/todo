@@ -1,11 +1,27 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
+import axios from '../../axios'
 
+//Import context
+import TodosContext from './../../context/todos'
 function FormAddTodo(props) {
+  const todosContext = useContext(TodosContext)
   const [text, setText] = useState(' ')
 
   let formHandler = (e) => {
     e.preventDefault()
-    props.add(text)
+    if (text.length > 1) {
+      let todo = { done: false, text }
+      axios
+        .post(`/todos.json`, todo)
+        .then((response) => {
+          todosContext.dispatch({
+            type: 'add_todo',
+            payload: { todo: { ...todo, key: response.data.name } }
+          })
+        })
+        .catch((err) => console.log(err))
+    }
+
     setText('')
   }
 
